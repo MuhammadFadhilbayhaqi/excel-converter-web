@@ -581,9 +581,10 @@ function getJenjangOrder(jenjang) {
 }
 
 /**
- * Sort rows per university block:
+ * Sort rows dalam satu blok universitas:
  *  1) Nama Program Studi A-Z
- *  2) Jika nama sama → Jenjang D1, D2, D3, D4, S1, S2, S3
+ *  2) Jika nama sama -> Jenjang D1, D2, D3, D4, S1, S2, S3
+ * Urutan antar universitas tidak diubah.
  */
 function sortRowsPerUniversity(rows) {
     return rows.slice().sort((a, b) => {
@@ -591,8 +592,6 @@ function sortRowsPerUniversity(rows) {
         const nameB = String(b["Nama Program Studi"] || "").trim().toLowerCase();
         const nameCompare = nameA.localeCompare(nameB, "id");
         if (nameCompare !== 0) return nameCompare;
-
-        // Nama sama → urutkan berdasarkan jenjang
         return getJenjangOrder(a["Jenjang"]) - getJenjangOrder(b["Jenjang"]);
     });
 }
@@ -624,28 +623,34 @@ async function startCombine() {
                 ptName = extractPTName(workbook);
             }
 
+            breakdown.push({
+                name: file.name,
+                ptName: ptName || "—",
+                rowCount: rows.length,
+            });
+
             // Normalize rows to ALL_COLS format
-            const normalizedRows = [];
-            for (const row of rows) {
+            const normalizedRows = rows.map(row => {
                 const normalized = {};
                 for (const col of ALL_COLS) {
                     normalized[col] = row[col] !== undefined ? row[col] : "";
                 }
-                normalizedRows.push(normalized);
-            }
-
-            // Sort per universitas: Nama Prodi A-Z, lalu Jenjang D1→S3
-            const sortedRows = sortRowsPerUniversity(normalizedRows);
-
-            breakdown.push({
-                name: file.name,
-                ptName: ptName || "—",
-                rowCount: sortedRows.length,
+                if (!String(normalized["Nama Perguruan Tinggi"] || "").trim() && ptName) {
+                    normalized["Nama Perguruan Tinggi"] = ptName;
+                }
+                return normalized;
             });
 
-            // Push sorted rows to combined array
-            for (const row of sortedRows) {
-                allRows.push(row);
+            // Sort per universitas (bukan seluruh sheet gabungan):
+            // Nama Program Studi A-Z, lalu Jenjang D1 -> S3 jika nama sama.
+            const ptGroups = new Map();
+            for (const row of normalizedRows) {
+                const key = String(row["Nama Perguruan Tinggi"] || "").trim() || ptName || file.name;
+                if (!ptGroups.has(key)) ptGroups.set(key, []);
+                ptGroups.get(key).push(row);
+            }
+            for (const group of ptGroups.values()) {
+                allRows.push(...sortRowsPerUniversity(group));
             }
         }
 
