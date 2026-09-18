@@ -581,13 +581,13 @@ function getJenjangOrder(jenjang) {
 }
 
 /**
- * Urutan status prodi untuk sorting: Aktif -> Tutup -> Alih Bentuk.
+ * Urutan status prodi untuk sorting: Aktif -> Alih Bentuk -> Tutup.
  * Status yang tidak dikenal mendapat priority tinggi (99) agar tampil di akhir.
  */
 const STATUS_ORDER = {
     "aktif": 1,
-    "tutup": 2, "ditutup": 2,
-    "alih bentuk": 3, "alih-bentuk": 3, "alihbentuk": 3,
+    "alih bentuk": 2, "alih-bentuk": 2, "alihbentuk": 2,
+    "tutup": 3, "ditutup": 3,
 };
 
 function getStatusOrder(status) {
@@ -597,7 +597,7 @@ function getStatusOrder(status) {
 
 /**
  * Sort rows dalam satu blok universitas:
- *  1) Status: Aktif, lalu Tutup, lalu Alih Bentuk
+ *  1) Status (dikelompokkan): semua Aktif, lalu semua Alih Bentuk, lalu semua Tutup
  *  2) Nama Program Studi A-Z
  *  3) Jika nama sama -> Jenjang D1, D2, D3, D4, S1, S2, S3
  * Urutan antar universitas tidak diubah.
