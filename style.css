@@ -714,6 +714,110 @@ body {
     margin-top: 1px;
 }
 
+/* --- Jenjang Filter (convert tab) --- */
+.step-tag {
+    margin-left: auto;
+    padding: 0.15rem 0.5rem;
+    border-radius: 20px;
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--accent-light);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+}
+
+.jenjang-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.85rem;
+}
+
+.jenjang-count {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
+.jenjang-actions {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.btn-mini {
+    padding: 0.3rem 0.7rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-card);
+    background: rgba(99, 102, 241, 0.06);
+    color: var(--text-secondary);
+    font-family: var(--font);
+    font-size: 0.73rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.btn-mini:hover:not(:disabled) {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+    background: rgba(99, 102, 241, 0.14);
+}
+
+.btn-mini:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.jenjang-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.jenjang-empty {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.jenjang-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    border: 1px solid var(--border-card);
+    background: rgba(17, 24, 39, 0.6);
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    user-select: none;
+    transition: all var(--transition);
+}
+
+.jenjang-chip:hover {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+}
+
+.jenjang-chip input {
+    accent-color: var(--accent);
+    cursor: pointer;
+    margin: 0;
+}
+
+.jenjang-chip.checked {
+    border-color: rgba(99, 102, 241, 0.45);
+    background: rgba(99, 102, 241, 0.14);
+    color: var(--text-primary);
+}
+
+.jenjang-chip-count {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
 /* --- Format Preview --- */
 .format-preview {
     display: flex;

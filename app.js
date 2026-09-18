@@ -158,10 +158,16 @@ const resultCard = document.getElementById("resultCard");
 const errorCard = document.getElementById("errorCard");
 const errorMessage = document.getElementById("errorMessage");
 const btnDownload = document.getElementById("btnDownload");
+const jenjangChips = document.getElementById("jenjangChips");
+const jenjangCount = document.getElementById("jenjangCount");
+const btnJenjangAll = document.getElementById("btnJenjangAll");
+const btnJenjangNone = document.getElementById("btnJenjangNone");
 
 let uploadedFile = null;
 let outputWorkbook = null;
 let outputFileName = "";
+let jenjangOptions = [];          // [{ key, label, count }] - dibaca dari file yang diupload
+let selectedJenjang = new Set();  // berisi key (jenjang lowercase)
 
 // File upload handlers
 dropZone.addEventListener("click", () => fileInput.click());
@@ -183,7 +189,7 @@ btnRemoveFile.addEventListener("click", (e) => {
     clearConvertFile();
 });
 
-function handleConvertFile(file) {
+async function handleConvertFile(file) {
     const ext = file.name.split(".").pop().toLowerCase();
     if (!["xlsx", "xls"].includes(ext)) {
         showConvertError("Format file tidak didukung. Harap upload file .xlsx atau .xls");
@@ -196,6 +202,8 @@ function handleConvertFile(file) {
     dropZone.classList.add("hidden");
     btnConvert.disabled = false;
     hideConvertResults();
+
+    await loadJenjangOptions(file);
 }
 
 function clearConvertFile() {
@@ -204,7 +212,116 @@ function clearConvertFile() {
     fileInfo.classList.add("hidden");
     dropZone.classList.remove("hidden");
     btnConvert.disabled = true;
+    resetJenjangFilter();
     hideConvertResults();
+}
+
+/* --- Filter Jenjang (step 3) --- */
+
+/** Baca daftar jenjang unik dari file yang diupload, lalu tampilkan sebagai chip. */
+async function loadJenjangOptions(file) {
+    jenjangOptions = [];
+    selectedJenjang = new Set();
+    jenjangCount.textContent = "Membaca jenjang...";
+    try {
+        const data = await readFileAsArrayBuffer(file);
+        const workbook = XLSX.read(data, { type: "array" });
+        let sheetName = "Program_Studi";
+        if (!workbook.SheetNames.includes(sheetName)) sheetName = workbook.SheetNames[0];
+        const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { defval: null });
+
+        // Hitung jumlah prodi unik (bukan jumlah baris per semester) untuk tiap jenjang
+        const map = new Map();
+        for (const row of rows) {
+            const raw = String(row["Jenjang"] ?? "").trim();
+            const key = raw.toLowerCase();
+            if (!map.has(key)) map.set(key, { key, label: raw || "(Tanpa Jenjang)", prodi: new Set() });
+            map.get(key).prodi.add(`${row["Kode"] ?? ""}|||${row["Nama Program Studi"] ?? ""}`);
+        }
+
+        jenjangOptions = [...map.values()]
+            .map(o => ({ key: o.key, label: o.label, count: o.prodi.size }))
+            .sort((a, b) => {
+                const orderDiff = getJenjangOrder(a.label) - getJenjangOrder(b.label);
+                if (orderDiff !== 0) return orderDiff;
+                return a.label.localeCompare(b.label, "id");
+            });
+        selectedJenjang = new Set(jenjangOptions.map(o => o.key));
+    } catch (err) {
+        jenjangOptions = [];
+        selectedJenjang = new Set();
+    }
+    renderJenjangFilter();
+}
+
+function resetJenjangFilter() {
+    jenjangOptions = [];
+    selectedJenjang = new Set();
+    renderJenjangFilter();
+}
+
+function renderJenjangFilter() {
+    const hasOptions = jenjangOptions.length > 0;
+    btnJenjangAll.disabled = !hasOptions;
+    btnJenjangNone.disabled = !hasOptions;
+
+    if (!hasOptions) {
+        jenjangChips.innerHTML = '<p class="jenjang-empty">Upload file terlebih dahulu untuk melihat daftar jenjang yang tersedia.</p>';
+        jenjangCount.textContent = uploadedFile ? "Jenjang tidak terdeteksi" : "Belum ada file";
+        return;
+    }
+
+    jenjangChips.innerHTML = jenjangOptions.map(o => {
+        const checked = selectedJenjang.has(o.key);
+        return `<label class="jenjang-chip${checked ? " checked" : ""}">
+            <input type="checkbox" data-key="${escapeHtml(o.key)}"${checked ? " checked" : ""}>
+            <span>${escapeHtml(o.label)}</span>
+            <span class="jenjang-chip-count">${o.count}</span>
+        </label>`;
+    }).join("");
+
+    jenjangChips.querySelectorAll("input[type=checkbox]").forEach(cb => {
+        cb.addEventListener("change", () => {
+            if (cb.checked) selectedJenjang.add(cb.dataset.key);
+            else selectedJenjang.delete(cb.dataset.key);
+            renderJenjangFilter();
+            hideConvertResults();
+        });
+    });
+
+    updateJenjangCount();
+}
+
+function updateJenjangCount() {
+    const total = jenjangOptions.length;
+    const picked = jenjangOptions.filter(o => selectedJenjang.has(o.key)).length;
+    if (picked === 0) {
+        jenjangCount.textContent = "Belum ada jenjang dipilih";
+    } else if (picked === total) {
+        jenjangCount.textContent = `Semua jenjang dipilih (${total})`;
+    } else {
+        jenjangCount.textContent = `${picked} dari ${total} jenjang dipilih`;
+    }
+    // Konversi butuh minimal satu jenjang
+    btnConvert.disabled = !uploadedFile || (total > 0 && picked === 0);
+}
+
+btnJenjangAll.addEventListener("click", () => {
+    selectedJenjang = new Set(jenjangOptions.map(o => o.key));
+    renderJenjangFilter();
+    hideConvertResults();
+});
+
+btnJenjangNone.addEventListener("click", () => {
+    selectedJenjang = new Set();
+    renderJenjangFilter();
+    hideConvertResults();
+});
+
+function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, c => (
+        { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+    ));
 }
 
 // Conversion
@@ -235,11 +352,23 @@ async function startConversion() {
             throw new Error(`Kolom tidak ditemukan: ${missing.join(", ")}. Pastikan file adalah hasil scraping PDDikti.`);
         }
 
+        // Terapkan filter jenjang (step 3)
+        let filteredRows = rows;
+        if (jenjangOptions.length > 0) {
+            if (selectedJenjang.size === 0) {
+                throw new Error("Pilih minimal satu jenjang pada filter jenjang.");
+            }
+            filteredRows = rows.filter(r => selectedJenjang.has(String(r["Jenjang"] ?? "").trim().toLowerCase()));
+            if (filteredRows.length === 0) {
+                throw new Error("Tidak ada data yang cocok dengan jenjang yang dipilih.");
+            }
+        }
+
         const ptNameFromInfo = extractPTName(workbook);
         const userPTName = universityInput.value.trim();
         const finalPTName = userPTName || ptNameFromInfo || "";
 
-        const result = convertToWide(rows, finalPTName);
+        const result = convertToWide(filteredRows, finalPTName);
         outputWorkbook = buildConvertWorkbook(result, finalPTName);
 
         const ts = new Date().toISOString().replace(/[-:T]/g, "").slice(0, 15);

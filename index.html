@@ -141,10 +141,39 @@
                     </div>
                 </section>
 
-                <!-- Step 3: Convert -->
+                <!-- Step 3: Filter Jenjang -->
                 <section class="card step-card">
                     <div class="step-badge">
                         <span class="step-number">3</span>
+                        <span class="step-label">Filter Jenjang</span>
+                        <span class="step-tag">opsional</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="jenjang-toolbar">
+                            <span class="jenjang-count" id="jenjangCount">Belum ada file</span>
+                            <div class="jenjang-actions">
+                                <button type="button" class="btn-mini" id="btnJenjangAll" disabled>Pilih Semua</button>
+                                <button type="button" class="btn-mini" id="btnJenjangNone" disabled>Kosongkan</button>
+                            </div>
+                        </div>
+                        <div class="jenjang-chips" id="jenjangChips">
+                            <p class="jenjang-empty">Upload file terlebih dahulu untuk melihat daftar jenjang yang tersedia.</p>
+                        </div>
+                        <p class="input-hint">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="16" x2="12" y2="12"/>
+                                <line x1="12" y1="8" x2="12.01" y2="8"/>
+                            </svg>
+                            Hanya jenjang yang dicentang yang akan masuk ke hasil konversi. Secara default semua jenjang dipilih.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Step 4: Convert -->
+                <section class="card step-card">
+                    <div class="step-badge">
+                        <span class="step-number">4</span>
                         <span class="step-label">Konversi</span>
                     </div>
                     <div class="card-body">
