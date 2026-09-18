@@ -135,7 +135,7 @@ body {
 /* --- Header --- */
 .app-header {
     text-align: center;
-    margin-bottom: 2.5rem;
+    margin-bottom: 1.75rem;
     animation: fadeInDown 0.6s ease-out;
 }
 
@@ -174,6 +174,58 @@ body {
     color: var(--text-secondary);
     font-weight: 400;
     margin-top: 2px;
+}
+
+/* --- Tab Navigation --- */
+.tab-nav {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 1.5rem;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid var(--border-card);
+    border-radius: var(--radius-md);
+    padding: 4px;
+    backdrop-filter: blur(12px);
+    animation: fadeInDown 0.5s ease-out 0.1s backwards;
+}
+
+.tab-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--font);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+    position: relative;
+}
+
+.tab-btn:hover {
+    color: var(--text-secondary);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.tab-btn.active {
+    color: white;
+    background: var(--gradient-accent);
+    box-shadow: 0 2px 12px rgba(99, 102, 241, 0.3);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeInUp 0.35s ease-out;
 }
 
 /* --- Cards --- */
@@ -288,7 +340,7 @@ body {
     letter-spacing: 0.03em;
 }
 
-/* --- File Info --- */
+/* --- File Info (single file - convert tab) --- */
 .file-info {
     display: flex;
     align-items: center;
@@ -340,6 +392,266 @@ body {
 .btn-remove:hover {
     color: var(--error);
     background: var(--error-glow);
+}
+
+/* --- Combine File List --- */
+.combine-file-list {
+    margin-top: 1rem;
+    animation: fadeInUp 0.3s ease-out;
+}
+
+.combine-file-list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.combine-file-count {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.combine-file-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-add-more,
+.btn-clear-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.75rem;
+    border: 1px solid var(--border-card);
+    border-radius: 6px;
+    background: rgba(15, 23, 42, 0.5);
+    color: var(--text-secondary);
+    font-family: var(--font);
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.btn-add-more:hover {
+    border-color: var(--accent);
+    color: var(--accent-light);
+    background: rgba(99, 102, 241, 0.08);
+}
+
+.btn-clear-all:hover {
+    border-color: var(--error);
+    color: var(--error);
+    background: var(--error-glow);
+}
+
+.file-list-items {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.file-list-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: var(--radius-sm);
+    background: rgba(99, 102, 241, 0.05);
+    border: 1px solid rgba(99, 102, 241, 0.1);
+    animation: fadeInUp 0.25s ease-out;
+    transition: all var(--transition);
+}
+
+.file-list-item:hover {
+    border-color: rgba(99, 102, 241, 0.2);
+    background: rgba(99, 102, 241, 0.08);
+}
+
+.file-list-order {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(99, 102, 241, 0.15);
+    color: var(--accent-light);
+    font-size: 0.7rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.file-list-name {
+    flex: 1;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.file-list-size {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+.file-list-remove {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 4px;
+    transition: all var(--transition);
+    flex-shrink: 0;
+    display: flex;
+}
+
+.file-list-remove:hover {
+    color: var(--error);
+    background: var(--error-glow);
+}
+
+/* --- Combine Info Box --- */
+.combine-info-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    padding: 1rem 1.15rem;
+    border-radius: var(--radius-sm);
+    background: rgba(99, 102, 241, 0.05);
+    border: 1px solid rgba(99, 102, 241, 0.1);
+    margin-bottom: 1.25rem;
+}
+
+.combine-info-icon {
+    color: var(--accent-light);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.combine-info-text p {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+}
+
+.combine-info-desc {
+    font-size: 0.78rem !important;
+    color: var(--text-secondary) !important;
+    margin-top: 0.25rem;
+}
+
+/* --- Combine Visual Stack --- */
+.combine-visual {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-bottom: 1.5rem;
+    padding: 0 0.5rem;
+}
+
+.combine-block {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.55rem 1rem;
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--block-color) 12%, transparent);
+    border-left: 3px solid var(--block-color);
+    transition: all var(--transition);
+}
+
+.combine-block:hover {
+    background: color-mix(in srgb, var(--block-color) 18%, transparent);
+}
+
+.combine-block-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.combine-block-rows {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.combine-result-arrow {
+    text-align: center;
+    padding: 0.5rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--success);
+    border-top: 1px dashed rgba(16, 185, 129, 0.3);
+    margin-top: 0.35rem;
+}
+
+/* --- Breakdown List --- */
+.combine-breakdown {
+    padding: 0 1.5rem 1rem;
+}
+
+.breakdown-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.breakdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.85rem;
+    border-radius: var(--radius-sm);
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid var(--border-card);
+}
+
+.breakdown-order {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--gradient-accent);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.breakdown-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.breakdown-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.breakdown-meta {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+.breakdown-rows {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--accent-light);
+    flex-shrink: 0;
 }
 
 /* --- Input Group --- */
@@ -510,7 +822,9 @@ body {
 }
 
 .btn-convert-content,
-.btn-convert-loading {
+.btn-convert-loading,
+.btn-combine-content,
+.btn-combine-loading {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
@@ -533,7 +847,6 @@ body {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    margin-top: 1.25rem;
 }
 
 .btn-download:hover {
@@ -833,5 +1146,11 @@ tbody td:nth-child(2) {
 
     .step-badge {
         padding: 0.85rem 1rem 0;
+    }
+
+    .combine-file-list-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
     }
 }
