@@ -558,6 +558,45 @@ btnCombine.addEventListener("click", () => {
     startCombine();
 });
 
+/**
+ * Urutan jenjang pendidikan untuk sorting.
+ * Jenjang yang tidak dikenal mendapat priority tinggi (99) agar tampil di akhir.
+ */
+const JENJANG_ORDER = {
+    "d1": 1, "d-1": 1, "d i": 1,
+    "d2": 2, "d-2": 2, "d ii": 2,
+    "d3": 3, "d-3": 3, "d iii": 3,
+    "d4": 4, "d-4": 4, "d iv": 4,
+    "s1": 5, "s-1": 5, "s.1": 5, "sarjana": 5,
+    "s2": 6, "s-2": 6, "s.2": 6, "magister": 6,
+    "s3": 7, "s-3": 7, "s.3": 7, "doktor": 7,
+    "profesi": 8,
+    "sp-1": 9, "sp1": 9, "spesialis": 9,
+    "sp-2": 10, "sp2": 10,
+};
+
+function getJenjangOrder(jenjang) {
+    const key = String(jenjang || "").trim().toLowerCase();
+    return JENJANG_ORDER[key] ?? 99;
+}
+
+/**
+ * Sort rows per university block:
+ *  1) Nama Program Studi A-Z
+ *  2) Jika nama sama → Jenjang D1, D2, D3, D4, S1, S2, S3
+ */
+function sortRowsPerUniversity(rows) {
+    return rows.slice().sort((a, b) => {
+        const nameA = String(a["Nama Program Studi"] || "").trim().toLowerCase();
+        const nameB = String(b["Nama Program Studi"] || "").trim().toLowerCase();
+        const nameCompare = nameA.localeCompare(nameB, "id");
+        if (nameCompare !== 0) return nameCompare;
+
+        // Nama sama → urutkan berdasarkan jenjang
+        return getJenjangOrder(a["Jenjang"]) - getJenjangOrder(b["Jenjang"]);
+    });
+}
+
 async function startCombine() {
     setCombineLoading(true);
     hideCombineResults();
@@ -585,19 +624,28 @@ async function startCombine() {
                 ptName = extractPTName(workbook);
             }
 
-            breakdown.push({
-                name: file.name,
-                ptName: ptName || "—",
-                rowCount: rows.length,
-            });
-
             // Normalize rows to ALL_COLS format
+            const normalizedRows = [];
             for (const row of rows) {
                 const normalized = {};
                 for (const col of ALL_COLS) {
                     normalized[col] = row[col] !== undefined ? row[col] : "";
                 }
-                allRows.push(normalized);
+                normalizedRows.push(normalized);
+            }
+
+            // Sort per universitas: Nama Prodi A-Z, lalu Jenjang D1→S3
+            const sortedRows = sortRowsPerUniversity(normalizedRows);
+
+            breakdown.push({
+                name: file.name,
+                ptName: ptName || "—",
+                rowCount: sortedRows.length,
+            });
+
+            // Push sorted rows to combined array
+            for (const row of sortedRows) {
+                allRows.push(row);
             }
         }
 
