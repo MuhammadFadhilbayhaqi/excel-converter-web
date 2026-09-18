@@ -581,17 +581,37 @@ function getJenjangOrder(jenjang) {
 }
 
 /**
+ * Urutan status prodi untuk sorting: Aktif -> Tutup -> Alih Bentuk.
+ * Status yang tidak dikenal mendapat priority tinggi (99) agar tampil di akhir.
+ */
+const STATUS_ORDER = {
+    "aktif": 1,
+    "tutup": 2, "ditutup": 2,
+    "alih bentuk": 3, "alih-bentuk": 3, "alihbentuk": 3,
+};
+
+function getStatusOrder(status) {
+    const key = String(status || "").trim().toLowerCase().replace(/\s+/g, " ");
+    return STATUS_ORDER[key] ?? 99;
+}
+
+/**
  * Sort rows dalam satu blok universitas:
- *  1) Nama Program Studi A-Z
- *  2) Jika nama sama -> Jenjang D1, D2, D3, D4, S1, S2, S3
+ *  1) Status: Aktif, lalu Tutup, lalu Alih Bentuk
+ *  2) Nama Program Studi A-Z
+ *  3) Jika nama sama -> Jenjang D1, D2, D3, D4, S1, S2, S3
  * Urutan antar universitas tidak diubah.
  */
 function sortRowsPerUniversity(rows) {
     return rows.slice().sort((a, b) => {
+        const statusCompare = getStatusOrder(a["Status"]) - getStatusOrder(b["Status"]);
+        if (statusCompare !== 0) return statusCompare;
+
         const nameA = String(a["Nama Program Studi"] || "").trim().toLowerCase();
         const nameB = String(b["Nama Program Studi"] || "").trim().toLowerCase();
         const nameCompare = nameA.localeCompare(nameB, "id");
         if (nameCompare !== 0) return nameCompare;
+
         return getJenjangOrder(a["Jenjang"]) - getJenjangOrder(b["Jenjang"]);
     });
 }
